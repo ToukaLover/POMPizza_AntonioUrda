@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Menú de Pizzas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        table {
+            width: 90%;
+            margin: 0 auto;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f7f7f7;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        img {
+            width: 100px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+<h1>Menú de Pizzas</h1>
+
+<a th:href="@{/pizzas/nueva}">Agregar Pizza</a>
+
+<table>
+    <thead>
+    <tr>
+        <th>Nombre</th>
+        <th>Descripción</th>
+        <th>Ingredientes</th>
+        <th>Precio (€)</th>
+        <th>Imagen</th>
+        <th>Disponible</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Iteramos sobre la lista de pizzas -->
+    <tr th:each="pizza : ${pizzas}">
+        <td th:text="${pizza.nombre}">Nombre</td>
+        <td th:text="${pizza.descripcion}">Descripción</td>
+        <td>
+            <ul>
+                <li th:each="ingrediente : ${pizza.ingredientes}" th:text="${ingrediente}">Ingrediente</li>
+            </ul>
+        </td>
+        <td th:text="${pizza.precio}">Precio</td>
+        <td>
+            <img th:src="${pizza.imagenUrl}">
+        </td>
+        <td th:text="${pizza.disponible ? 'Sí' : 'No'}">Disponible</td>
+
+        <td >
+            <a th:href="@{/pizzas/editar/{id}(id=${pizza.id})}">Editar</a>
+            <form th:action="@{/pizzas/delete/{id}(id=${pizza.id})}" method="post" style="display:inline;">
+                <button type="submit" onclick="return confirm('¿Estás seguro de eliminar este componente?');">Eliminar</button>
+            </form>
+        </td>
+
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

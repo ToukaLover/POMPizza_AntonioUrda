@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Agregar Nueva Pizza</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; text-align: center; }
+    form { display: inline-block; text-align: left; width: 300px; }
+    label, input, textarea { display: block; width: 100%; margin-bottom: 10px; }
+    button { width: 100%; padding: 8px; background-color: #28a745; color: white; border: none; cursor: pointer; }
+    button:hover { background-color: #218838; }
+  </style>
+</head>
+<body>
+
+<h1>Agregar Nueva Pizza</h1>
+
+<form action="/pizzas/agregar" method="post">
+  <label for="nombre">Nombre:</label>
+  <input type="text" id="nombre" name="nombre" required>
+
+  <label for="descripcion">Descripción:</label>
+  <textarea id="descripcion" name="descripcion" required></textarea>
+
+  <label for="ingredientes">Ingredientes (separados por comas):</label>
+  <input type="text" id="ingredientes" name="ingredientes" required>
+
+  <label for="precio">Precio (€):</label>
+  <input type="number" step="0.01" id="precio" name="precio" required>
+
+  <label for="imagenUrl">URL de la Imagen:</label>
+  <input type="text" id="imagenUrl" name="imagenUrl" required>
+
+  <label for="disponible">Disponible:</label>
+  <select id="disponible" name="disponible">
+    <option value="true">Sí</option>
+    <option value="false">No</option>
+  </select>
+
+  <button type="submit">Agregar Pizza</button>
+</form>
+
+</body>
+</html>
