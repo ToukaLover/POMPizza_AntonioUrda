@@ -23,6 +23,14 @@ public class PizzaRestController {
         return pizzaRepository.findAll();
     }
 
+    @GetMapping("/api/pizzas/{id}")
+    public ResponseEntity<Pizza> obtenerPizzaPorId(@PathVariable String id) {
+        Optional<Pizza> pizza = pizzaRepository.findById(id);
+
+        return pizza.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     // Endpoint para agregar una nueva pizza (POST)
     @PostMapping("/api/pizzas/agregar")
     public Pizza agregarPizza(@RequestBody Pizza nuevaPizza) {
@@ -41,14 +49,11 @@ public class PizzaRestController {
         }
     }
 
-    // Endpoint para editar una pizza
     @PutMapping("/api/pizzas/editar/{id}")
-    public String editarPizza(@PathVariable String id, @RequestBody Pizza pizzaEditada) {
+    public ResponseEntity<?> editarPizza(@PathVariable String id, @RequestBody Pizza pizzaEditada) {
         Optional<Pizza> pizzaExistente = pizzaRepository.findById(id);
         if (pizzaExistente.isPresent()) {
             Pizza pizza = pizzaExistente.get();
-
-            // Actualizamos los campos con los valores nuevos
             pizza.setNombre(pizzaEditada.getNombre());
             pizza.setDescripcion(pizzaEditada.getDescripcion());
             pizza.setIngredientes(pizzaEditada.getIngredientes());
@@ -56,12 +61,13 @@ public class PizzaRestController {
             pizza.setImagenUrl(pizzaEditada.getImagenUrl());
             pizza.setDisponible(pizzaEditada.getDisponible());
 
-            // Guardamos la pizza actualizada
             pizzaRepository.save(pizza);
-            return "Pizza actualizada exitosamente";
+
+            return ResponseEntity.ok().body("{\"message\": \"Pizza actualizada exitosamente\"}");
         } else {
-            return "Pizza no encontrada";
+            return ResponseEntity.status(404).body("{\"error\": \"Pizza no encontrada\"}");
         }
     }
+
 
 }

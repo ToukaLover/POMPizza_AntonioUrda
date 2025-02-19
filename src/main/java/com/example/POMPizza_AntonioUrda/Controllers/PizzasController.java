@@ -32,26 +32,9 @@ public class PizzasController {
         return "catalogo/nuevaPizza";
     }
 
-    // Procesar el formulario y guardar la nueva pizza
-    @PostMapping("/pizzas/agregar")
-    public String agregarPizza(
-            @RequestParam String nombre,
-            @RequestParam String descripcion,
-            @RequestParam String ingredientes,
-            @RequestParam double precio,
-            @RequestParam String imagenUrl,
-            @RequestParam boolean disponible) {
-
-        List<String> ingredientesLista = Arrays.asList(ingredientes.split("\\s*,\\s*")); // Convertir ingredientes a lista
-        Pizza nuevaPizza = new Pizza(nombre, descripcion, ingredientesLista, precio, imagenUrl, disponible);
-        pizzaRepository.save(nuevaPizza);
-
-        return "redirect:/pizzas"; // Redirigir a la lista de pizzas después de agregar
-    }
-
     @GetMapping("/pizzas/editar/{id}")
     public String editarPizzaId(@PathVariable String id,Model model){
-        Optional<Pizza> pizza = pizzaRepository.findById(id);
+            Optional<Pizza> pizza = pizzaRepository.findById(id);
 
         if (pizza.isPresent()){
 
@@ -64,21 +47,4 @@ public class PizzasController {
             return "redirect:/pizzas";
         }
     }
-
-    @PostMapping("/pizzas/editar")
-    public String editarPizza(@ModelAttribute("Pizza")Pizza pizza, BindingResult result) {
-        if (result.hasErrors()) {
-            return "redirect:/pizzas";
-        }
-        pizzaRepository.save(pizza);
-        return "redirect:/pizzas"; // Redirigir a la lista de pizzas después de agregar
-    }
-
-    // Eliminar una pizza
-    @PostMapping("/pizzas/delete/{id}")
-    public String eliminarAgrupacion(@PathVariable String id) {
-        pizzaRepository.deleteById(id);
-        return "redirect:/pizzas";
-    }
-
 }

@@ -10,12 +10,16 @@
     button { width: 100%; padding: 8px; background-color: #28a745; color: white; border: none; cursor: pointer; }
     button:hover { background-color: #218838; }
   </style>
+
+  <script th:src="@{/agregarPizza.js}"></script>
+
 </head>
 <body>
 
 <h1>Agregar Nueva Pizza</h1>
 
-<form action="/pizzas/agregar" method="post">
+<form id="formAgregarPizza" >
+
   <label for="nombre">Nombre:</label>
   <input type="text" id="nombre" name="nombre" required>
 

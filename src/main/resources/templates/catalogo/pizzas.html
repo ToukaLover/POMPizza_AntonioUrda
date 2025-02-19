@@ -31,6 +31,7 @@
             height: auto;
         }
     </style>
+    <script th:src="@{/pizzas.js}"></script>
 </head>
 <body>
 <h1>Menú de Pizzas</h1>
@@ -48,30 +49,8 @@
         <th>Disponible</th>
     </tr>
     </thead>
-    <tbody>
-    <!-- Iteramos sobre la lista de pizzas -->
-    <tr th:each="pizza : ${pizzas}">
-        <td th:text="${pizza.nombre}">Nombre</td>
-        <td th:text="${pizza.descripcion}">Descripción</td>
-        <td>
-            <ul>
-                <li th:each="ingrediente : ${pizza.ingredientes}" th:text="${ingrediente}">Ingrediente</li>
-            </ul>
-        </td>
-        <td th:text="${pizza.precio}">Precio</td>
-        <td>
-            <img th:src="${pizza.imagenUrl}">
-        </td>
-        <td th:text="${pizza.disponible ? 'Sí' : 'No'}">Disponible</td>
+    <tbody id="tablaPizzas">
 
-        <td >
-            <a th:href="@{/pizzas/editar/{id}(id=${pizza.id})}">Editar</a>
-            <form th:action="@{/pizzas/delete/{id}(id=${pizza.id})}" method="post" style="display:inline;">
-                <button type="submit" onclick="return confirm('¿Estás seguro de eliminar este componente?');">Eliminar</button>
-            </form>
-        </td>
-
-    </tr>
     </tbody>
 </table>
 </body>
