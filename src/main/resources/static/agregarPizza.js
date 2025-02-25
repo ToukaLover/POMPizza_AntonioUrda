@@ -39,11 +39,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const data = await response.json();
             console.log("Pizza agregada con éxito:", data);
+            
+            window.location.href = "/pizzas"; 
 
             // Limpiar formulario
             formulario.reset();
         } catch (error) {
             console.error("Error al agregar la pizza:", error);
         }
+        
     }
 });

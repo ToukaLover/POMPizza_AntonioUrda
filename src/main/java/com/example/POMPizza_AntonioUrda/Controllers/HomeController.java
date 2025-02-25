@@ -5,15 +5,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class HomeController {
-
-    @GetMapping("/") // Mapea la ruta principal ("/")
-    public String index() {
-        return "index"; // Devuelve la vista "login.html"
+    @GetMapping("/")
+    public String redirectToLogin() {
+        return "redirect:/auth/login"; // Redirige a la página de login
     }
 
-    /*@GetMapping("/auth/index ") // Mapea la ruta principal ("/")
-    public String index() {
-        return "index"; // Devuelve la vista "login.html"
-    }*/
-
+    @GetMapping("/index")
+    public String getIndex(){
+        return "index";
+    }
 }

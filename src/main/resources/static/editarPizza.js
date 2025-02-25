@@ -45,6 +45,9 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("Pizza editada con éxito:", data);
 
             // Limpiar formulario
+
+            window.location.href = "/pizzas"; 
+
             formulario.reset();
         } catch (error) {
             console.error("Error al editar la pizza:", error);
