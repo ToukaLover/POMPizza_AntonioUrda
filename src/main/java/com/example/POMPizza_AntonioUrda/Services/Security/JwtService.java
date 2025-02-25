@@ -22,23 +22,26 @@ public class JwtService {
     public static final String SECRET = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
 
     // Generate token with given user name
-    public String generateToken(String userName) {
+    public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userName);
+        claims.put("role", userDetails.getAuthorities().iterator().next().getAuthority()); // Agrega el rol al token
+        return createToken(claims, userDetails.getUsername());
     }
+
 
     // Create a JWT token with specified claims and subject (user name)
     private String createToken(Map<String, Object> claims, String userName) {
-        long expirationTimeInMillis = 1000 * 60 * 30; // 30 minutes in milliseconds
+        long expirationTimeInMillis = 1000 * 60 * 30; // 30 minutos
 
         return Jwts.builder()
-                .setClaims(claims) // Set the custom claims
-                .setSubject(userName) // Set the subject (user name)
-                .setIssuedAt(new Date()) // Set the issue time
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTimeInMillis)) // Set the expiration time
-                .signWith(getSignKey(), SignatureAlgorithm.HS256) // Sign the token with the secret key
-                .compact(); // Compact the token into a string
+                .setClaims(claims) // Añadimos claims personalizados
+                .setSubject(userName)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTimeInMillis))
+                .signWith(getSignKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
+
 
 
     // Get the signing key for JWT token

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>Menú de Pizzas</title>
@@ -31,12 +31,12 @@
             height: auto;
         }
     </style>
-    <script th:src="@{/pizzas.js}"></script>
+    <script src="pizzas.js"></script>
 </head>
 <body>
 <h1>Menú de Pizzas</h1>
 
-<a th:href="@{/pizzas/nueva}">Agregar Pizza</a>
+<a href="/pizzas/nueva">Agregar Pizza</a>
 
 <table>
     <thead>
@@ -47,6 +47,7 @@
         <th>Precio (€)</th>
         <th>Imagen</th>
         <th>Disponible</th>
+        <th id="thAcciones">Acciones</th> <!-- ID agregado para ocultar si el usuario no es admin -->
     </tr>
     </thead>
     <tbody id="tablaPizzas">

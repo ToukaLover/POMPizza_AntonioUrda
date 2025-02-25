@@ -1,52 +1,82 @@
-// Manejo del formulario de login
-document.getElementById("loginForm").addEventListener("submit", async function(event) {
-    event.preventDefault();
+document.addEventListener("DOMContentLoaded", function () {
+    // Asegurar que el formulario existe antes de añadir el listener
+    const loginForm = document.getElementById("loginForm");
+    if (loginForm) {
+        loginForm.addEventListener("submit", async function (event) {
+            event.preventDefault();
 
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value.trim();
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
 
-    // Validar campos antes de enviar
-    if (!username || !password) {
-        alert("Por favor, completa todos los campos.");
-        return;
-    }
+            if (!username || !password) {
+                alert("Por favor, completa todos los campos.");
+                return;
+            }
 
-    // Crear el objeto de la solicitud
-    const authRequest = {
-        username: username,
-        password: password
-    };
+            const authRequest = { username, password };
 
-    try {
+            try {
+                const response = await fetch("http://localhost:8080/auth/generateToken", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(authRequest),
+                });
 
-        // Enviar la solicitud POST al backend
-        const response = await fetch("http://localhost:8080/auth/generateToken", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(authRequest)
+                if (!response.ok) {
+                    throw new Error(`Error en el servidor: ${response.status} ${response.statusText}`);
+                }
+
+                const token = await response.text();
+
+                if (token) {
+                    localStorage.setItem("jwtToken", token);
+
+                    try {
+                        const payload = JSON.parse(atob(token.split(".")[1]));
+                        const userRole = payload.role;
+
+                        console.log("Usuario autenticado con rol:", userRole);
+
+                        alert("Login exitoso!");
+
+                       window.location.href = "/pizzas";
+
+                    } catch (error) {
+                        console.error("Error al decodificar el token:", error);
+                        alert("Error en la autenticación.");
+                    }
+                } else {
+                    alert("Usuario o contraseña incorrectos");
+                }
+            } catch (error) {
+                console.error("Error en el login:", error);
+                alert("Ocurrió un error durante el login. Por favor, intenta de nuevo.");
+            }
         });
-
-        // Verificar el código de estado
-        if (!response.ok) {
-            throw new Error(`Error en el servidor: ${response.status} ${response.statusText}`);
-        }
-
-        const data = await response.text();
-
-        // Verificar si el token está presente
-        if (data) {
-            // Guardar el token en localStorage
-            localStorage.setItem("jwtToken", data);
-            alert("Login exitoso!");
-            // Redirigir al index
-            window.location.href = "/pizzas";
-        } else {
-            alert("Usuario o contraseña incorrectos");
-        }
-    } catch (error) {
-        console.error("Error en el login:", error);
-        alert("Ocurrió un error durante el login. Por favor, intenta de nuevo.");
     }
+
+    checkAuthStatus();
 });
+
+// Función para verificar si el usuario está autenticado
+function checkAuthStatus() {
+    const token = localStorage.getItem("jwtToken");
+
+    if (token) {
+        try {
+            const payload = JSON.parse(atob(token.split(".")[1]));
+            const userRole = payload.role;
+
+            console.log("Rol del usuario:", userRole);
+
+            const adminPanel = document.getElementById("adminPanel");
+            if (adminPanel) {
+                adminPanel.style.display = userRole === "ROLE_ADMIN" ? "block" : "none";
+            }
+
+        } catch (error) {
+            console.error("Error al decodificar el token:", error);
+            localStorage.removeItem("jwtToken");
+        }
+    }
+}

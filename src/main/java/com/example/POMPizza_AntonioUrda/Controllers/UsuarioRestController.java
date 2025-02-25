@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -72,11 +73,17 @@ public class UsuarioRestController {
         );
 
         if (authentication.isAuthenticated()) {
-            String token = jwtService.generateToken(authRequest.getUsername());
-            return ResponseEntity.ok(token); // Devuelve el token como respuesta
+            // Obtener UserDetails a partir del username
+            UserDetails userDetails = service.loadUserByUsername(authRequest.getUsername());
+
+            // Generar el token usando UserDetails
+            String token = jwtService.generateToken(userDetails);
+
+            return ResponseEntity.ok(token);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario o contraseña incorrectos");
         }
     }
+
 
 }
