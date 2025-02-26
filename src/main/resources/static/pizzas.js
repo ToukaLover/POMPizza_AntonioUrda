@@ -1,14 +1,14 @@
 function obtenerRolUsuario() {
-    
-    try{
-        const rol =  JSON.parse(atob(localStorage.getItem("jwtToken").split(".")[1])).sub
+
+    try {
+        const rol = JSON.parse(atob(localStorage.getItem("jwtToken").split(".")[1])).sub
 
         return rol;
-    }catch(error){
-        window.location.href=`/auth/login`
+    } catch (error) {
+        window.location.href = `/auth/login`
         return null;
     }
-   
+
 }
 async function renderPizzas() {
     try {
@@ -45,15 +45,26 @@ async function renderPizzas() {
                 <td>${pizza.disponible ? 'Sí' : 'No'}</td>
                 ${isAdmin ? `
                     <td>
-                        <a href="/pizzas/editar/${pizza.id}">Editar</a>
+                        <a href="/admin/pizzas/editar/${pizza.id}">Editar</a>
                         <button onclick="Eliminar('${pizza.id}')">Eliminar</button>
                     </td>
                 ` : ""}
             `;
 
             $tabla.appendChild($tr);
+
+
         });
 
+        const $a = document.createElement("a")
+        $a.href = "/admin/pizzas/nueva"
+        $a.innerHTML = "Agregar Pizza"
+        const $div = document.getElementById("div1")
+        {
+            isAdmin ?
+                $div.appendChild($a)
+                : ""
+        }
         // Ocultar el encabezado "Acciones" si el usuario no es admin
         if (!isAdmin) {
             document.getElementById("thAcciones").style.display = "none";
@@ -62,6 +73,7 @@ async function renderPizzas() {
     } catch (error) {
         console.error("Error al obtener las pizzas:", error);
     }
+
 }
 
 async function Eliminar(id) {

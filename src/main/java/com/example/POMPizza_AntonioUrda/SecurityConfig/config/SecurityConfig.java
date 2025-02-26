@@ -39,9 +39,12 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/pizzas").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")  // Solo ADMIN puede acceder a /admin
                         .requestMatchers("/user/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
                         .requestMatchers("/**", "/auth/users", "/auth/register", "/auth/login", "/auth/addNewUser", "/auth/generateToken")
+
+
 
                         .permitAll()
                         .anyRequest().authenticated()

@@ -27,12 +27,12 @@ public class PizzasController {
     }
 
     // Mostrar formulario para agregar una nueva pizza
-    @GetMapping("/pizzas/nueva")
+    @GetMapping("/admin/pizzas/nueva")
     public String mostrarFormulario() {
         return "catalogo/nuevaPizza";
     }
 
-    @GetMapping("/pizzas/editar/{id}")
+    @GetMapping("/admin/pizzas/editar/{id}")
     public String editarPizzaId(@PathVariable String id,Model model){
             Optional<Pizza> pizza = pizzaRepository.findById(id);
 
