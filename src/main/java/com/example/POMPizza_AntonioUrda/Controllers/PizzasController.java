@@ -29,7 +29,7 @@ public class PizzasController {
     // Mostrar formulario para agregar una nueva pizza
     @GetMapping("/admin/pizzas/nueva")
     public String mostrarFormulario() {
-        return "catalogo/nuevaPizza";
+        return "nuevaPizza";
     }
 
     @GetMapping("/admin/pizzas/editar/{id}")

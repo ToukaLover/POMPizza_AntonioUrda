@@ -1,12 +1,14 @@
 package com.example.POMPizza_AntonioUrda.SecurityConfig.filter;
 
-
 import com.example.POMPizza_AntonioUrda.Services.Security.JwtService;
 import com.example.POMPizza_AntonioUrda.Services.Security.UserInfoService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,6 +23,8 @@ import java.util.List;
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthFilter.class);
+
     @Autowired
     private JwtService jwtService;
 
@@ -31,34 +35,52 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
         String token = null;
-        String username = null;
-        String role; // Nuevo
+        String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
-            username = jwtService.extractUsername(token);
-            role = jwtService.extractClaim(token, claims -> claims.get("role", String.class)); // Extraer el rol
+            logger.debug("Token found in Authorization header");
         } else {
-            role = null;
+            // Buscar el token en las cookies
+            if (request.getCookies() != null) {
+                for (Cookie cookie : request.getCookies()) {
+                    if ("jwtToken".equals(cookie.getName())) {
+                        token = cookie.getValue();
+                        logger.debug("Token found in cookie");
+                        break;
+                    }
+                }
+            }
         }
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        if (token != null) {
+            String username = jwtService.extractUsername(token);
+            logger.debug("Extracted username: {}", username);
 
-            if (jwtService.validateToken(token, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        List.of(() -> role) // Asigna el rol extraído del token
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                if (jwtService.validateToken(token, userDetails)) {
+                    // Extraer el rol del token y asignarlo
+                    String role = jwtService.extractClaim(token, claims -> claims.get("role", String.class));
+                    logger.debug("Extracted role: {}", role);
+
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            List.of(() -> role)
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                    logger.debug("Authentication set for user: {}", username);
+                } else {
+                    logger.warn("Token inválido para el usuario: {}", username);
+                }
             }
+        } else {
+            logger.debug("No se encontró token en la solicitud");
         }
 
         filterChain.doFilter(request, response);
     }
-
 }

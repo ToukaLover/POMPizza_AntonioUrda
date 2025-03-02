@@ -1,14 +1,16 @@
+// Función para obtener el rol del usuario desde el token JWT
 function obtenerRolUsuario() {
-
     try {
-        const rol = JSON.parse(atob(localStorage.getItem("jwtToken").split(".")[1])).sub
+        const token = localStorage.getItem("jwtToken");
+        if (!token) throw new Error("No hay token en localStorage");
 
-        return rol;
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        return payload.role; // Asegurar que se usa el campo 'role'
     } catch (error) {
-        window.location.href = `/auth/login`
+        console.error("Error al obtener el rol del usuario:", error);
+        window.location.href = "/auth/login";
         return null;
     }
-
 }
 async function renderPizzas() {
     try {
@@ -20,12 +22,12 @@ async function renderPizzas() {
 
         const pizzas = await response.json();
         const $tabla = document.getElementById("tablaPizzas");
-        $tabla.innerHTML = "";
+        $tabla.innerHTML = ""; // Mantiene la tabla y la rellena de nuevo
 
         // Obtener el rol del usuario autenticado
         const userRole = obtenerRolUsuario();
-        console.log(userRole)
-        const isAdmin = userRole === "admin";
+        console.log("Rol del usuario:", userRole);
+        const isAdmin = userRole === "ADMIN"; // Comprobar si es admin
 
         pizzas.forEach(pizza => {
             const $tr = document.createElement("tr");
@@ -52,19 +54,21 @@ async function renderPizzas() {
             `;
 
             $tabla.appendChild($tr);
-
-
         });
 
-        const $a = document.createElement("a")
-        $a.href = "/admin/pizzas/nueva"
-        $a.innerHTML = "Agregar Pizza"
-        const $div = document.getElementById("div1")
-        {
-            isAdmin ?
-                $div.appendChild($a)
-                : ""
+        // Agregar el botón de "Agregar Pizza" solo si es admin
+        const $div = document.getElementById("div1");
+
+        if (isAdmin) {
+                const $enlace = document.createElement("a");
+                $enlace.innerHTML="AgregarPizza"
+                $enlace.href="/admin/pizzas/nueva"
+                $div.appendChild($enlace);
+            // Mostrar información del token en consola
+            const token = localStorage.getItem("jwtToken");
+            if (token) console.log("Token decodificado:", JSON.parse(atob(token.split(".")[1])));
         }
+
         // Ocultar el encabezado "Acciones" si el usuario no es admin
         if (!isAdmin) {
             document.getElementById("thAcciones").style.display = "none";
@@ -73,16 +77,19 @@ async function renderPizzas() {
     } catch (error) {
         console.error("Error al obtener las pizzas:", error);
     }
-
 }
 
+// Función para eliminar una pizza
 async function Eliminar(id) {
     console.log("Eliminando pizza con ID:", id);
 
     try {
+        const token = localStorage.getItem("jwtToken");
+
         const response = await fetch(`http://localhost:8080/api/pizzas/delete/${id}`, {
             method: "DELETE",
             headers: {
+                "Authorization": `Bearer ${token}`, // Enviar token en eliminación
                 "Content-Type": "application/json"
             }
         });
@@ -92,9 +99,7 @@ async function Eliminar(id) {
         }
 
         console.log(`Pizza con ID ${id} eliminada exitosamente`);
-
-        // Volver a renderizar la tabla después de eliminar
-        renderPizzas();
+        window.location.href = "/pizzas";
 
     } catch (error) {
         console.error("Error al eliminar la pizza:", error);
