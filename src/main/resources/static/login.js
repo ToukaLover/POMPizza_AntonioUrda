@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Asegurar que el formulario existe antes de añadir el listener
     const loginForm = document.getElementById("loginForm");
     if (loginForm) {
         loginForm.addEventListener("submit", async function (event) {
@@ -26,21 +25,23 @@ document.addEventListener("DOMContentLoaded", function () {
                     throw new Error(`Error en el servidor: ${response.status} ${response.statusText}`);
                 }
 
-                const token = await response.text();
+                const tokens = await response.json();
+                const accessToken = tokens.accessToken;
+                const refreshToken = tokens.refreshToken;
 
-                if (token) {
-                    // Guarda el token en localStorage y en una cookie para que se envíe con las solicitudes de navegador
-                    localStorage.setItem("jwtToken", token);
-                    setCookie("jwtToken", token, 7);
+                if (accessToken && refreshToken) {
+                    // Guarda ambos tokens en localStorage y en cookies
+                    localStorage.setItem("jwtToken", accessToken);
+                    localStorage.setItem("refreshToken", refreshToken);
+                    setCookie("jwtToken", accessToken, 7);
+                    setCookie("refreshToken", refreshToken, 7);
 
                     try {
-                        const payload = JSON.parse(atob(token.split(".")[1]));
+                        const payload = JSON.parse(atob(accessToken.split(".")[1]));
                         const userRole = payload.role;
                         console.log("Usuario autenticado con rol:", userRole);
 
-                        // Guarda el rol en una cookie por 7 días
                         setCookie("userRole", userRole, 7);
-
                         alert("Login exitoso!");
                         window.location.href = "/pizzas";
                     } catch (error) {
@@ -60,7 +61,6 @@ document.addEventListener("DOMContentLoaded", function () {
     checkAuthStatus();
 });
 
-// Función para establecer una cookie
 function setCookie(name, value, days) {
     let expires = "";
     if (days) {
@@ -71,7 +71,6 @@ function setCookie(name, value, days) {
     document.cookie = name + "=" + (value || "") + expires + "; path=/";
 }
 
-// Función para obtener una cookie
 function getCookie(name) {
     const nameEQ = name + "=";
     const ca = document.cookie.split(";");
@@ -83,9 +82,7 @@ function getCookie(name) {
     return null;
 }
 
-// Función para verificar si el usuario está autenticado
 function checkAuthStatus() {
-    // Intenta obtener el token de localStorage o de la cookie
     const token = localStorage.getItem("jwtToken") || getCookie("jwtToken");
     let userRole = getCookie("userRole");
 
@@ -104,7 +101,37 @@ function checkAuthStatus() {
 
     const adminPanel = document.getElementById("adminPanel");
     if (adminPanel) {
-        // Compara con "ADMIN" (sin prefijo) para que coincida con lo enviado desde el token
         adminPanel.style.display = userRole === "ADMIN" ? "block" : "none";
+    }
+}
+
+// Función para refrescar el access token cuando sea necesario
+async function refreshAccessToken() {
+    const refreshToken = localStorage.getItem("refreshToken") || getCookie("refreshToken");
+    console.log("Intentando refrescar token con refreshToken:", refreshToken);
+    if (!refreshToken) {
+        window.location.href = "/login";
+        return;
+    }
+    try {
+        const response = await fetch("http://localhost:8080/auth/refresh", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ refreshToken }),
+        });
+        if (response.ok) {
+            const data = await response.json();
+            const newAccessToken = data.accessToken;
+            console.log("Nuevo accessToken obtenido:", newAccessToken);
+            localStorage.setItem("jwtToken", newAccessToken);
+            setCookie("jwtToken", newAccessToken, 7);
+            return newAccessToken;
+        } else {
+            console.error("Error al refrescar token. Status:", response.status);
+            window.location.href = "/login";
+        }
+    } catch (error) {
+        console.error("Error al refrescar token:", error);
+        window.location.href = "/login";
     }
 }

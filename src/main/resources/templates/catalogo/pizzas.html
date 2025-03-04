@@ -35,7 +35,7 @@
 </head>
 <body>
 <h1>Menú de Pizzas</h1>
-
+<a href="/pedidos">Pedidos</a>
 <table>
     <thead>
     <tr>
@@ -46,12 +46,26 @@
         <th>Imagen</th>
         <th>Disponible</th>
         <th id="thAcciones">Acciones</th> <!-- ID agregado para ocultar si el usuario no es admin -->
+        <th>Agregar</th>
     </tr>
     </thead>
     <tbody id="tablaPizzas">
 
     </tbody>
 </table>
+<h2>Carrito</h2>
+<table id="carrito">
+    <thead>
+    <tr>
+        <th>Nombre</th>
+        <th>Precio</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+</table>
+<button id="botonPedido" >Hacer Pedido</button>
 <div id="div1"></div>
 </body>
 </html>

@@ -1,6 +1,5 @@
 package com.example.POMPizza_AntonioUrda.Services.Security;
 
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -18,23 +17,27 @@ import java.util.function.Function;
 @Component
 public class JwtService {
 
-    // Replace this with a secure key in a real application, ideally fetched from environment variables
+    // Clave secreta; en producción, obtener de variables de entorno
     public static final String SECRET = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
 
-    // Generate token with given user name
+    // Genera el Access Token con 30 minutos de validez
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", userDetails.getAuthorities().iterator().next().getAuthority()); // Agrega el rol al token
-        return createToken(claims, userDetails.getUsername());
+        claims.put("role", userDetails.getAuthorities().iterator().next().getAuthority());
+        return createToken(claims, userDetails.getUsername(), 1000 * 60 * 60 * 24 * 7); // 7 días
     }
 
+    // Genera el Refresh Token con 7 días de validez
+    public String generateRefreshToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", userDetails.getAuthorities().iterator().next().getAuthority());
+        return createToken(claims, userDetails.getUsername(), 1000 * 60 * 60 * 24 * 7); // 7 días
+    }
 
-    // Create a JWT token with specified claims and subject (user name)
-    private String createToken(Map<String, Object> claims, String userName) {
-        long expirationTimeInMillis = 1000 * 60 * 30; // 30 minutos
-
+    // Método genérico para crear un token
+    private String createToken(Map<String, Object> claims, String userName, long expirationTimeInMillis) {
         return Jwts.builder()
-                .setClaims(claims) // Añadimos claims personalizados
+                .setClaims(claims)
                 .setSubject(userName)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTimeInMillis))
@@ -42,31 +45,29 @@ public class JwtService {
                 .compact();
     }
 
-
-
-    // Get the signing key for JWT token
+    // Obtiene la clave de firma
     private Key getSignKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // Extract the username from the token
+    // Extrae el username (subject) del token
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    // Extract the expiration date from the token
+    // Extrae la fecha de expiración del token
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    // Extract a claim from the token
+    // Extrae cualquier claim
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    // Extract all claims from the token
+    // Extrae todos los claims
     private Claims extractAllClaims(String token) {
         return Jwts.parser()
                 .setSigningKey(getSignKey())
@@ -75,12 +76,12 @@ public class JwtService {
                 .getBody();
     }
 
-    // Check if the token is expired
+    // Verifica si el token ha expirado
     private Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    // Validate the token against user details and expiration
+    // Valida el token comparándolo con los detalles del usuario
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));

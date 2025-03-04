@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <title>Pedidos</title>
+  <style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+    }
+    h1 {
+        text-align: center;
+    }
+    table {
+        width: 90%;
+        margin: 0 auto;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+    }
+    th {
+        background-color: #f7f7f7;
+    }
+    ul {
+        padding-left: 20px;
+    }
+  </style>
+  <script src="pedidos.js"></script>
+</head>
+<body>
+<h1>Lista de Pedidos</h1>
+
+<table>
+  <thead>
+  <tr>
+    <th>Cliente</th>
+    <th>Pizzas</th>
+    <th>Total (€)</th>
+    <th>Fecha</th>
+    <th>Estado</th>
+    <th>Acciones</th>
+  </tr>
+  </thead>
+  <tbody id="tablaPedidos">
+
+  </tbody>
+</table>
+
+</body>
+</html>

@@ -1,3 +1,5 @@
+var pizzasPedido = []
+
 // Función para obtener el rol del usuario desde el token JWT
 function obtenerRolUsuario() {
     try {
@@ -12,7 +14,21 @@ function obtenerRolUsuario() {
         return null;
     }
 }
+
+function agregarPizzaAPedido(pizza){
+    pizzasPedido = [...pizzasPedido,pizza]
+    const tablaCarrito = document.getElementById("carrito")
+    const $trCarrito = document.createElement("tr")
+    $trCarrito.innerHTML=`
+        <td>${pizza.nombre}</td>
+        <td>${pizza.precio}</td>
+    `
+    tablaCarrito.appendChild($trCarrito)
+
+}
+
 async function renderPizzas() {
+
     try {
         const response = await fetch("http://localhost:8080/api/pizzas");
 
@@ -31,7 +47,18 @@ async function renderPizzas() {
 
         pizzas.forEach(pizza => {
             const $tr = document.createElement("tr");
-
+            const $tdParaAgregar = document.createElement("td")
+            
+            const $button = document.createElement("button")
+            $button.innerHTML="Agregar a Pedido"
+            $button.onclick = () => agregarPizzaAPedido(
+                {    
+                    id:pizza.id,
+                    nombre:pizza.nombre,      
+                    precio:pizza.precio,
+                }
+            )
+            $tdParaAgregar.appendChild($button)
             $tr.innerHTML = `
                 <td>${pizza.nombre}</td>
                 <td>${pizza.descripcion}</td>
@@ -52,12 +79,18 @@ async function renderPizzas() {
                     </td>
                 ` : ""}
             `;
-
+            $tr.appendChild($tdParaAgregar)
             $tabla.appendChild($tr);
         });
 
+        
+
         // Agregar el botón de "Agregar Pizza" solo si es admin
         const $div = document.getElementById("div1");
+
+        const $botonPedido = document.getElementById("botonPedido")
+
+        $botonPedido.onclick= (e) => agregarPedido(e)
 
         if (isAdmin) {
                 const $enlace = document.createElement("a");
@@ -103,6 +136,79 @@ async function Eliminar(id) {
 
     } catch (error) {
         console.error("Error al eliminar la pizza:", error);
+    }
+}
+
+// Función para obtener el cliente desde el token JWT
+function obtenerClienteDesdeToken() {
+    try {
+        const token = localStorage.getItem("jwtToken");
+        if (!token) throw new Error("No hay token en localStorage");
+
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        return payload.sub; // 'sub' es el identificador del usuario
+    } catch (error) {
+        console.error("Error al obtener el cliente:", error);
+        window.location.href = "/auth/login";
+        return null;
+    }
+}
+
+// Función para calcular el total del pedido
+function calcularTotal(pizzas) {
+    return pizzas.reduce((total, pizza) => total + pizza.precio, 0);
+}
+
+// Función para agregar el pedido
+async function agregarPedido(event) {
+    event.preventDefault(); // Evita la recarga de la página
+
+    const cliente = obtenerClienteDesdeToken();
+    if (!cliente) return;
+
+    if (pizzasPedido.length === 0) {
+        alert("El pedido está vacío.");
+        return;
+    }
+
+    // Construcción del objeto pedido
+    const pedido = {
+        cliente: cliente,
+        pizzas: pizzasPedido,
+        total: calcularTotal(pizzasPedido),
+        fecha: new Date(),
+        estado: "pendiente" // Estado inicial del pedido
+    };
+
+    try {
+        const token = localStorage.getItem("jwtToken");
+
+        console.log(pedido)
+
+        const response = await fetch("http://localhost:8080/api/pedidos/agregar", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}` // Enviar el token para autenticación
+            },
+            body: JSON.stringify(pedido)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error en la respuesta de la API: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Pedido agregado con éxito:", data);
+
+        alert("Pedido realizado con éxito!");
+
+        // Limpiar carrito después de enviar el pedido
+        pizzasPedido = [];
+        document.getElementById("carrito").innerHTML = "";
+
+    } catch (error) {
+        console.error("Error al agregar el pedido:", error);
     }
 }
 
