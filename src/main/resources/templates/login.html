@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="stylesheet" th:href="@{/css/formularios.css}">
 </head>
 <body>
 <h2>Login</h2>
@@ -16,7 +17,7 @@
 
     <button type="submit">Login</button>
 </form>
-
+<br><br>
 <!-- Botón para redirigir al registro -->
 <form th:action="@{/auth/register}" method="get">
     <button type="submit">Registrarse</button>

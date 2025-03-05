@@ -1,0 +1,128 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+    margin: 20px;
+    text-align: center;
+}
+
+h1 {
+    color: #d9534f;
+}
+
+table {
+    width: 90%;
+    margin: 0 auto;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+th {
+    background-color: #28a745;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+tr:hover {
+    background-color: #dff0d8;
+}
+
+/* Estilos para imágenes en la tabla */
+img {
+    width: 100px;
+    height: auto;
+    border-radius: 4px;
+}
+
+/* ===== Estilos para enlaces ===== */
+a {
+    display: inline-block;
+    padding: 8px 12px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 4px;
+    color: white;
+    background-color: #007bff; /* Azul por defecto */
+    transition: background 0.3s ease-in-out;
+}
+
+/* Cambio de color al pasar el mouse */
+a:hover {
+    background-color: #0056b3;
+}
+
+/* Si un enlace contiene "pedidos", cambiar color */
+a[href*="pedidos"] {
+    background-color: #ffc107;
+    color: black;
+}
+
+a[href*="pedidos"]:hover {
+    background-color: #e0a800;
+}
+
+/* Si un enlace contiene "agregar", cambiar color */
+a[href*="agregar"] {
+    background-color: #28a745;
+}
+
+a[href*="agregar"]:hover {
+    background-color: #218838;
+}
+
+/* ===== Estilos para botones ===== */
+button {
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out, transform 0.1s;
+}
+
+/* Botón principal (verde) */
+button {
+    background-color: #28a745;
+    color: white;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+/* Botón de eliminar o acción peligrosa (rojo) */
+button.eliminar {
+    background-color: #d9534f;
+}
+
+button.eliminar:hover {
+    background-color: #c9302c;
+}
+
+/* Botón secundario (azul) */
+button.secundario {
+    background-color: #007bff;
+}
+
+button.secundario:hover {
+    background-color: #0056b3;
+}
+
+/* Efecto de clic */
+button:active {
+    transform: scale(0.95);
+}

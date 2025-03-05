@@ -3,35 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <title>Pedidos</title>
-  <style>
-    body {
-        font-family: Arial, sans-serif;
-        margin: 20px;
-    }
-    h1 {
-        text-align: center;
-    }
-    table {
-        width: 90%;
-        margin: 0 auto;
-        border-collapse: collapse;
-    }
-    th, td {
-        padding: 8px 12px;
-        border: 1px solid #ddd;
-    }
-    th {
-        background-color: #f7f7f7;
-    }
-    ul {
-        padding-left: 20px;
-    }
-  </style>
   <script src="pedidos.js"></script>
+  <link rel="stylesheet" th:href="@{/css/tablas.css}">
 </head>
 <body>
 <h1>Lista de Pedidos</h1>
-
+<a href="/pizzas">Catalogo de Pizzas</a><br>
 <table>
   <thead>
   <tr>
@@ -40,7 +17,7 @@
     <th>Total (€)</th>
     <th>Fecha</th>
     <th>Estado</th>
-    <th>Acciones</th>
+    <th id="thAcciones" >Acciones</th>
   </tr>
   </thead>
   <tbody id="tablaPedidos">

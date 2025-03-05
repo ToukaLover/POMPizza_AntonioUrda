@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Usuario</title>
+    <link rel="stylesheet" th:href="@{/css/formularios.css}">
 </head>
 <body>
 <h2>Formulario de Registro</h2>
@@ -26,7 +27,7 @@
 
     <button type="submit">Registrar</button>
 </form>
-
+<br><br>
 <form th:action="@{/auth/login}" method="get">
     <button type="submit">Iniciar Sesion</button>
 </form>

@@ -13,6 +13,21 @@ function obtenerRolUsuario() {
     }
 }
 
+// Función para obtener el cliente desde el token JWT
+function obtenerClienteDesdeToken() {
+    try {
+        const token = localStorage.getItem("jwtToken");
+        if (!token) throw new Error("No hay token en localStorage");
+
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        return payload.sub; // 'sub' es el identificador del usuario
+    } catch (error) {
+        console.error("Error al obtener el cliente:", error);
+        window.location.href = "/auth/login";
+        return null;
+    }
+}
+
 // Función para renderizar los pedidos
 async function renderPedidos() {
     try {
@@ -22,7 +37,8 @@ async function renderPedidos() {
             throw new Error(`Error HTTP: ${response.status}`);
         }
 
-        const pedidos = await response.json();
+        var pedidos = await response.json();
+
         const $tabla = document.getElementById("tablaPedidos");
         $tabla.innerHTML = ""; // Limpia la tabla antes de llenarla
 
@@ -30,29 +46,60 @@ async function renderPedidos() {
         const userRole = obtenerRolUsuario();
         console.log("Rol del usuario:", userRole);
         const isAdmin = userRole === "ADMIN"; // Comprobar si es admin
+        const nombreCliente = obtenerClienteDesdeToken()
 
-        pedidos.forEach(pedido => {
-            const $tr = document.createElement("tr");
+        if(!isAdmin){
+            pedidos=pedidos.filter(pedido => pedido.cliente === nombreCliente)
 
-            const pizzasLista = pedido.pizzas.map(p => `<li>${p.nombre} - €${p.precio}</li>`).join("");
-
-            $tr.innerHTML = `
-                <td>${pedido.cliente}</td>
-                <td>
-                    <ul>${pizzasLista}</ul>
-                </td>
-                <td>€${pedido.total.toFixed(2)}</td>
-                <td>${new Date(pedido.fecha).toLocaleString()}</td>
-                <td>${pedido.estado}</td>
-                ${isAdmin ? `
+            pedidos.forEach(pedido => {
+                const $tr = document.createElement("tr");
+    
+                const pizzasLista = pedido.pizzas.map(p => `<li>${p.nombre} - €${p.precio}</li>`).join("");
+    
+                $tr.innerHTML = `
+                    <td>${pedido.cliente}</td>
                     <td>
-                        <button onclick="cambiarEstado('${pedido.id}')">Actualizar Estado</button>
-                        <button onclick="eliminarPedido('${pedido.id}')">Eliminar</button>
+                        <ul>${pizzasLista}</ul>
                     </td>
-                ` : ""}
-            `;
-            $tabla.appendChild($tr);
-        });
+                    <td>€${pedido.total.toFixed(2)}</td>
+                    <td>${new Date(pedido.fecha).toLocaleString()}</td>
+                    <td>${pedido.estado}</td>
+                    ${isAdmin ? `
+                        <td>
+                            <button onclick="cambiarEstado('${pedido.id}')">Actualizar Estado</button>
+                            <button onclick="eliminarPedido('${pedido.id}')">Eliminar</button>
+                        </td>
+                    ` : ""}
+                `;
+                $tabla.appendChild($tr);
+            });
+
+        }else{
+
+            pedidos.forEach(pedido => {
+                const $tr = document.createElement("tr");
+    
+                const pizzasLista = pedido.pizzas.map(p => `<li>${p.nombre} - €${p.precio}</li>`).join("");
+    
+                $tr.innerHTML = `
+                    <td>${pedido.cliente}</td>
+                    <td>
+                        <ul>${pizzasLista}</ul>
+                    </td>
+                    <td>€${pedido.total.toFixed(2)}</td>
+                    <td>${new Date(pedido.fecha).toLocaleString()}</td>
+                    <td>${pedido.estado}</td>
+                    ${isAdmin ? `
+                        <td>
+                            <button onclick="cambiarEstado('${pedido.id}')">Actualizar Estado</button>
+                            <button onclick="eliminarPedido('${pedido.id}')">Eliminar</button>
+                        </td>
+                    ` : ""}
+                `;
+                $tabla.appendChild($tr);
+            });
+
+        }
 
         // Ocultar la columna de acciones si el usuario no es admin
         if (!isAdmin) {
